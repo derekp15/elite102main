@@ -1,19 +1,49 @@
 import mysql.connector
 import time
 
-def check_balance():
-    pass
+def check_balance(name):
+    connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
 
-def deposit():
+    cursor = connection.cursor()
+
+    show_tables_query = f"SHOW TABLES"
+    cursor.execute(show_tables_query)
+    list_of_tables = cursor.fetchall()
+
+    for item in list_of_tables:
+        getPassQ = f"SHOW COLUMNS FROM {item[0]}"
+        cursor.execute(getPassQ)
+        passq = cursor.fetchall()[2][4]
+        if item[0] == name:
+            print(f'Here is your balance: {passq}')
+
+    cursor.close()
+    connection.close()
+
+def deposit(name):
     pass
     
-def withdraw():
+def withdraw(name):
     pass
 
-def delete_account():
-    pass
+def delete_account(name):
+    connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
+    cursor = connection.cursor()
 
-def modify_account():
+    ask = input('Are you sure you want to delete your account?(y/n) ')
+    if ask == 'y' or ask == 'n':
+        if ask == 'y':
+            drop = f"DROP {name};"
+            cursor.execute(drop)
+
+            connection.commit()
+    else:
+        delete_account(name)
+
+    cursor.close()
+    connection.close()
+
+def modify_account(name, password):
     pass 
 
 def main():
@@ -95,7 +125,7 @@ def main():
                 #list_of_tables = cursor.fetchall()
                 connection.commit()
 
-                #print(login_user)
+                #print(login_user) DOESNT WORK___DOESN WORK SDOENSE WORK
                 addData = f"INSERT INTO {login_user} (type, password, balance) VALUES ('none',{login_pass},0)"
                 cursor.execute(addData)
                 #list_of_tables = cursor.fetchall()
@@ -113,18 +143,18 @@ def main():
                 connection.close()
             return login_user,login_pass
     login_user,login_pass = login_create_account()
-    '''while True:
+    while True:
         print(listofoptions)
         ask = int(input('Choose an option: '))
         if ask >= 1 and ask <= 5:
             if ask == 1:
-                check_balance()
+                check_balance(login_user)
             elif ask == 2:
-                deposit()
+                deposit(login_user)
             elif ask == 3:
-                withdraw()
+                withdraw(login_user)
             elif ask == 4:
-                modify_account()
+                modify_account(login_user,login_pass)
             elif ask == 5:
-                delete_account()'''
+                delete_account(login_user)
 main()
