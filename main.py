@@ -1,6 +1,8 @@
 import mysql.connector
 import time
 
+programended = False
+
 def check_balance(name):
     connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
 
@@ -33,9 +35,11 @@ def delete_account(name):
     ask = input('Are you sure you want to delete your account?(y/n) ')
     if ask == 'y' or ask == 'n':
         if ask == 'y':
-            drop = f"DROP {name};"
+            drop = f"DROP TABLE {name};"
             cursor.execute(drop)
 
+            global programended
+            programended = True
             connection.commit()
     else:
         delete_account(name)
@@ -75,6 +79,7 @@ def main():
                 cursor.execute(show_tables_query)
                 list_of_tables = cursor.fetchall()
 
+                can = False
                 for item in list_of_tables:
                     #print(item[0])
 
@@ -84,10 +89,15 @@ def main():
 
                     #print(passq)
                     if item[0] == login_user and str(passq) == login_pass:
-                        print('You have logged in')
+                        can = True
                     else:
-                        print('Incorrect information, please try again')
-                        login_create_account()
+                        pass
+
+                if can == True:
+                    print('You have logged in')
+                else:
+                    print('Incorrect information, please try again')
+                    login_create_account()
 
                 cursor.close()
                 connection.close()
@@ -120,21 +130,27 @@ def main():
                 login_pass = input('Create your password: ')
 
                 #------------------------------------------------------
-                create_table_query = f"CREATE TABLE {login_user} (type char(255),password char(255),balance int)"
+                create_table_query = f"""
+                    CREATE TABLE {login_user}(
+                        type char(255) DEFAULT 'none',
+                        password char(255) DEFAULT {login_pass},
+                        balance int DEFAULT 0
+                    )
+                """
                 cursor.execute(create_table_query)
                 #list_of_tables = cursor.fetchall()
                 connection.commit()
 
                 #print(login_user) DOESNT WORK___DOESN WORK SDOENSE WORK
-                addData = f"INSERT INTO {login_user} (type, password, balance) VALUES ('none',{login_pass},0)"
-                cursor.execute(addData)
+                #addData = f"INSERT INTO {login_user} (type, password, balance) VALUES ('none',{login_pass},0)"
+                #cursor.execute(addData)
                 #list_of_tables = cursor.fetchall()
-                connection.commit()
+                #connection.commit()
 
                 getPassQ = f"SHOW COLUMNS FROM {login_user}"
                 cursor.execute(getPassQ)
                 passq = cursor.fetchall()
-                print(passq)
+                #print(passq)
                 
                 #-----------------------------------------------------------
                 #make a new table that has the users name, and password, etc..
@@ -143,7 +159,8 @@ def main():
                 connection.close()
             return login_user,login_pass
     login_user,login_pass = login_create_account()
-    while True:
+
+    while programended == False:
         print(listofoptions)
         ask = int(input('Choose an option: '))
         if ask >= 1 and ask <= 5:
