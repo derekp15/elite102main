@@ -5,28 +5,69 @@ programended = False
 
 def check_balance(name):
     connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
-
     cursor = connection.cursor()
 
-    show_tables_query = f"SHOW TABLES"
-    cursor.execute(show_tables_query)
-    list_of_tables = cursor.fetchall()
+    query = f"SELECT * FROM people"
+    cursor.execute(query)
+    result = cursor.fetchall()
 
-    for item in list_of_tables:
-        getPassQ = f"SHOW COLUMNS FROM {item[0]}"
-        cursor.execute(getPassQ)
-        passq = cursor.fetchall()[2][4]
-        if item[0] == name:
-            print(f'Here is your balance: {passq}')
+    for people in result:
+        if people[0] == name:
+            print(f'Here is your balance: {people[2]}')
 
     cursor.close()
     connection.close()
 
 def deposit(name):
-    pass
+    amount = input('How much would you like to deposit?')
+    if amount.isdigit():
+        connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
+        cursor = connection.cursor()
+
+        query = f"SELECT * FROM people"
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+        for people in result:
+            if people[0] == name:
+                balance = people[2]
+
+        final_bal = int(balance)+int(amount)
+
+        query = f"UPDATE people SET balance = {final_bal} WHERE name = '{name}'"
+        cursor.execute(query)
+        connection.commit()
+
+        connection.close()
+        cursor.close()
+    else:
+        deposit(name)
     
 def withdraw(name):
-    pass
+    connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
+    cursor = connection.cursor()
+    amount = input('How much would you like to withdraw?')
+
+    query = f"SELECT * FROM people"
+    cursor.execute(query)
+    result = cursor.fetchall()
+
+    for people in result:
+        if people[0] == name:
+            balance = people[2]
+
+    if amount.isdigit() and int(amount) <= int(balance):
+
+        final_bal = int(balance)-int(amount)
+
+        query = f"UPDATE people SET balance = {final_bal} WHERE name = '{name}'"
+        cursor.execute(query)
+        connection.commit()  
+    else:
+        print('This amount is more than you have in your bank.')
+        withdraw(name)
+    connection.close()
+    cursor.close()
 
 def delete_account(name):
     connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
@@ -35,7 +76,7 @@ def delete_account(name):
     ask = input('Are you sure you want to delete your account?(y/n) ')
     if ask == 'y' or ask == 'n':
         if ask == 'y':
-            drop = f"DROP TABLE {name};"
+            drop = f"DELETE FROM people WHERE name = '{name}'"
             cursor.execute(drop)
 
             global programended
@@ -47,8 +88,34 @@ def delete_account(name):
     cursor.close()
     connection.close()
 
-def modify_account(name, password):
-    pass 
+def modify_account(name):
+    connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
+    cursor = connection.cursor()
+
+    ask = input('Are you sure you want to change your password?(y/n) ')
+    if ask == 'y' or ask == 'n':
+        if ask == 'y':
+            ask_password = input('What is your current password?')
+            query = f"SELECT * FROM people"
+            cursor.execute(query)
+            result = cursor.fetchall()
+
+            correct = False
+            for peoples in result:
+                if peoples[1] == ask_password:
+                    correct = True
+            if correct == True:
+                new_pass = input('What do you want to change your password to?')
+                query = f"UPDATE people SET password = {new_pass} WHERE name = '{name}'"
+                cursor.execute(query)
+                connection.commit()  
+            else:
+                print('Your passwords do not match.')
+    else:
+        modify_account(name)
+
+    cursor.close()
+    connection.close() 
 
 def main():
     listof = [
@@ -72,30 +139,19 @@ def main():
 
                 #loop through tables and check if username is there, if it is then check if password matches username
                 connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
-
                 cursor = connection.cursor()
 
-                show_tables_query = f"SHOW TABLES"
-                cursor.execute(show_tables_query)
-                list_of_tables = cursor.fetchall()
+                query = f"SELECT * FROM people"
+                cursor.execute(query)
+                result = cursor.fetchall()
 
-                can = False
-                for item in list_of_tables:
-                    #print(item[0])
+                logged = False
+                for peoples in result:
+                    if peoples[0] == login_user and peoples[1] == login_pass:
+                        print('You have logged in')
+                        logged = True
 
-                    getPassQ = f"SHOW COLUMNS FROM {item[0]}"
-                    cursor.execute(getPassQ)
-                    passq = cursor.fetchall()[1][4]
-
-                    #print(passq)
-                    if item[0] == login_user and str(passq) == login_pass:
-                        can = True
-                    else:
-                        pass
-
-                if can == True:
-                    print('You have logged in')
-                else:
+                if logged == False:
                     print('Incorrect information, please try again')
                     login_create_account()
 
@@ -113,48 +169,25 @@ def main():
 
                 cursor = connection.cursor()
 
-                show_tables_query = f"SHOW TABLES"
-                cursor.execute(show_tables_query)
-                list_of_tables = cursor.fetchall()
-
+                query = f"SELECT * FROM people"
+                cursor.execute(query)
+                result = cursor.fetchall()
                 exists = False
-                for item in list_of_tables:
+                for item in result:
                     if item[0] == login_user:
                         exists = True
-                if exists == False:
-                    pass
-                else:
+                #print(result)
+                if exists == True:
                     print('That username already exists')
                     login_create_account()
 
                 login_pass = input('Create your password: ')
 
                 #------------------------------------------------------
-                create_table_query = f"""
-                    CREATE TABLE {login_user}(
-                        type char(255) DEFAULT 'none',
-                        password char(255) DEFAULT {login_pass},
-                        balance int DEFAULT 0
-                    )
-                """
-                cursor.execute(create_table_query)
-                #list_of_tables = cursor.fetchall()
+                query = f"INSERT INTO people (name,password,balance,type) VALUES ('{login_user}',{login_pass},0,'none')"
+                cursor.execute(query)
                 connection.commit()
 
-                #print(login_user) DOESNT WORK___DOESN WORK SDOENSE WORK
-                #addData = f"INSERT INTO {login_user} (type, password, balance) VALUES ('none',{login_pass},0)"
-                #cursor.execute(addData)
-                #list_of_tables = cursor.fetchall()
-                #connection.commit()
-
-                getPassQ = f"SHOW COLUMNS FROM {login_user}"
-                cursor.execute(getPassQ)
-                passq = cursor.fetchall()
-                #print(passq)
-                
-                #-----------------------------------------------------------
-                #make a new table that has the users name, and password, etc..
-                #if not then use : continue
                 cursor.close()
                 connection.close()
             return login_user,login_pass
@@ -162,16 +195,18 @@ def main():
 
     while programended == False:
         print(listofoptions)
-        ask = int(input('Choose an option: '))
-        if ask >= 1 and ask <= 5:
-            if ask == 1:
+        ask = input('Choose an option: ')
+        if True:
+            if ask == '1':
                 check_balance(login_user)
-            elif ask == 2:
+            elif ask == '2':
                 deposit(login_user)
-            elif ask == 3:
+            elif ask == '3':
                 withdraw(login_user)
-            elif ask == 4:
-                modify_account(login_user,login_pass)
-            elif ask == 5:
+            elif ask == '4':
+                modify_account(login_user)
+            elif ask == '5':
                 delete_account(login_user)
+            else:
+                print('Invalid option.')
 main()
