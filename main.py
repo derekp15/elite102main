@@ -1,8 +1,8 @@
 import mysql.connector
 import time
 
-'''
 
+'''
 import tkinter as tk
 root = tk.Tk()
 
@@ -15,9 +15,21 @@ title.pack(padx=20,pady=20)
 balance_button = tk.Button(root, text="Check Balance", font=('Arial',18))
 balance_button.pack()
 
-root.mainloop()
+deposit_button = tk.Button(root, text="Deposit", font=('Arial',18))
+deposit_button.pack()
 
+withdraw_button = tk.Button(root, text="Withdraw", font=('Arial',18))
+withdraw_button.pack()
+
+delete_button = tk.Button(root, text="Delete", font=('Arial',18))
+delete_button.pack()
+
+modify_button = tk.Button(root, text="Modify", font=('Arial',18))
+modify_button.pack()
+
+root.mainloop()
 '''
+
 
 programended = False
 
