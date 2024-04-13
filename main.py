@@ -1,6 +1,24 @@
 import mysql.connector
 import time
 
+'''
+
+import tkinter as tk
+root = tk.Tk()
+
+root.geometry('500x500')
+root.title('Bank')
+
+title = tk.Label(root,text='Bank',font=('Arial', 25))
+title.pack(padx=20,pady=20)
+
+balance_button = tk.Button(root, text="Check Balance", font=('Arial',18))
+balance_button.pack()
+
+root.mainloop()
+
+'''
+
 programended = False
 
 def check_balance(name):
