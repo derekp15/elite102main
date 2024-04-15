@@ -1,35 +1,7 @@
 import mysql.connector
 import time
 
-
-'''
-import tkinter as tk
-root = tk.Tk()
-
-root.geometry('500x500')
-root.title('Bank')
-
-title = tk.Label(root,text='Bank',font=('Arial', 25))
-title.pack(padx=20,pady=20)
-
-balance_button = tk.Button(root, text="Check Balance", font=('Arial',18))
-balance_button.pack()
-
-deposit_button = tk.Button(root, text="Deposit", font=('Arial',18))
-deposit_button.pack()
-
-withdraw_button = tk.Button(root, text="Withdraw", font=('Arial',18))
-withdraw_button.pack()
-
-delete_button = tk.Button(root, text="Delete", font=('Arial',18))
-delete_button.pack()
-
-modify_button = tk.Button(root, text="Modify", font=('Arial',18))
-modify_button.pack()
-
-root.mainloop()
-'''
-
+page = ''
 
 programended = False
 
@@ -147,6 +119,140 @@ def modify_account(name):
     cursor.close()
     connection.close() 
 
+
+
+
+import tkinter as tk
+root = tk.Tk()
+
+root.geometry('500x500')
+root.title('Bank')
+
+
+def mainButtons():
+    clearFrames()
+
+    title = tk.Label(root,text='Bank',font=('Arial', 25))
+    title.pack(padx=20,pady=20)
+
+    balance_button = tk.Button(root, text="Check Balance", font=('Arial',18), command=check_balance(name))
+    balance_button.pack()
+
+    deposit_button = tk.Button(root, text="Deposit", font=('Arial',18), command=deposit(name))
+    deposit_button.pack()
+
+    withdraw_button = tk.Button(root, text="Withdraw", font=('Arial',18), command=withdraw(name))
+    withdraw_button.pack()
+
+    delete_button = tk.Button(root, text="Delete", font=('Arial',18), command=delete_account(name))
+    delete_button.pack()
+
+    modify_button = tk.Button(root, text="Modify", font=('Arial',18), command=modify_account(name))
+    modify_button.pack()
+
+    root.mainloop()
+
+
+
+def clearFrames():
+    for widget in root.winfo_children():
+        widget.destroy()
+    title = tk.Label(root,text='Bank',font=('Arial', 25))
+    title.pack(padx=20,pady=20)
+
+def begining():
+
+    global inc
+    inc = False 
+    def login():
+        
+        def confirm():
+            login_user = userb.get()
+            login_pass = passb.get()
+
+            connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
+            cursor = connection.cursor()
+
+            query = f"SELECT * FROM people"
+            cursor.execute(query)
+            result = cursor.fetchall()
+
+            logged = False
+            for peoples in result:
+                if peoples[0] == login_user and peoples[1] == login_pass:
+                    mainButtons()
+                    logged = True
+
+            if logged == False:
+                global inc
+                inc = True
+                login()
+
+            cursor.close()
+            connection.close()
+
+        clearFrames()
+
+        if inc == True:
+            incorrectLabel = tk.Label(root,text='INCORRECT INFORMATION, PLEASE TRY AGAIN.',font=('Arial', 10))
+            incorrectLabel.pack()
+
+        userlabel = tk.Label(root,text='Username: ',font=('Arial', 18))
+        userlabel.pack()
+
+        userb = tk.Entry(root, text="Enter username:", font=('Arial',18))
+        userb.pack()
+
+
+        passlabel = tk.Label(root,text='Password: ',font=('Arial', 18))
+        passlabel.pack()
+
+        passb = tk.Entry(root, text="Enter password:", font=('Arial',18))
+        passb.pack()
+
+
+        confirmb = tk.Button(root, text="Login", font=('Arial',18), command=confirm)
+        confirmb.pack()
+
+        def back():
+            clearFrames()
+            begining()
+        backb = tk.Button(root, text="Back", font=('Arial',18), command=back)
+        backb.pack()
+
+        root.mainloop()
+     
+    def create():
+        pass
+
+    clearFrames()
+    
+    loginb = tk.Button(root, text="Login", font=('Arial',18), command=login)
+    loginb.pack()
+
+    createb = tk.Button(root, text="Sign up", font=('Arial',18), command=create)
+    createb.pack()
+
+    root.mainloop()
+
+begining()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def main():
     listof = [
         '1. Login',
@@ -239,4 +345,3 @@ def main():
                 delete_account(login_user)
             else:
                 print('Invalid option.')
-main()
