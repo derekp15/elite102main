@@ -268,6 +268,11 @@ def mainButtons(name):
 def clearFrames():
     for widget in root.winfo_children():
         widget.destroy()
+
+    #bg = tk.PhotoImage(file = "background.png").zoom(2,2)
+    #label1 = tk.Label(root, image = bg)
+    #label1.place(x = 0, y = 0)
+
     title = tk.Label(root,text='Bank',font=('Arial', 25))
     title.pack(padx=20,pady=20)
 
