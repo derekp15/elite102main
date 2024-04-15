@@ -14,6 +14,8 @@ root.title('Bank')
 
 def mainButtons(name):
 
+    global inc
+    inc = False
 
     def check_balance():
 
@@ -43,8 +45,57 @@ def mainButtons(name):
         connection.close()
 
     def deposit():
-        amount = input('How much would you like to deposit?')
-        if amount.isdigit():
+        clearFrames()
+        def mDeposit():
+            amount = entButton.get()
+            if amount.isdigit():
+                connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
+                cursor = connection.cursor()
+
+                query = f"SELECT * FROM people"
+                cursor.execute(query)
+                result = cursor.fetchall()
+
+                for people in result:
+                    if people[0] == name:
+                        balance = people[2]
+
+                final_bal = int(balance)+int(amount)
+
+                query = f"UPDATE people SET balance = {final_bal} WHERE name = '{name}'"
+                cursor.execute(query)
+                connection.commit()
+
+                clearFrames()
+                mainButtons(name)
+
+                connection.close()
+                cursor.close()
+            else:
+                global inc
+                inc = True
+                deposit()
+
+        if inc == True:
+            incorrectLabel = tk.Label(root,text='PLEASE ENTER A NUMBER ONLY.',font=('Arial', 10))
+            incorrectLabel.pack()
+
+        entButton = tk.Entry(root, text="Back", font=('Arial',18))
+        entButton.pack()
+
+        depButton = tk.Button(root, text="Deposit", font=('Arial',18), command=mDeposit)
+        depButton.pack()
+        def back():
+            clearFrames()
+            mainButtons(name)
+        backb = tk.Button(root, text="Back", font=('Arial',18), command=back)
+        backb.pack()
+        root.mainloop()
+    def withdraw():
+        clearFrames()
+        def mWithdraw():
+            amount = entButton.get()
+
             connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
             cursor = connection.cursor()
 
@@ -56,42 +107,43 @@ def mainButtons(name):
                 if people[0] == name:
                     balance = people[2]
 
-            final_bal = int(balance)+int(amount)
+            if amount.isdigit() and (int(balance)-int(amount))>=0:
 
-            query = f"UPDATE people SET balance = {final_bal} WHERE name = '{name}'"
-            cursor.execute(query)
-            connection.commit()
+                query = f"SELECT * FROM people"
+                cursor.execute(query)
+                result = cursor.fetchall()
 
-            connection.close()
-            cursor.close()
-        else:
-            deposit()
-        
-    def withdraw():
-        connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
-        cursor = connection.cursor()
-        amount = input('How much would you like to withdraw?')
+                final_bal = int(balance)-int(amount)
 
-        query = f"SELECT * FROM people"
-        cursor.execute(query)
-        result = cursor.fetchall()
+                query = f"UPDATE people SET balance = {final_bal} WHERE name = '{name}'"
+                cursor.execute(query)
+                connection.commit()
 
-        for people in result:
-            if people[0] == name:
-                balance = people[2]
+                clearFrames()
+                mainButtons(name)
 
-        if amount.isdigit() and int(amount) <= int(balance):
+                connection.close()
+                cursor.close()
+            else:
+                global inc
+                inc = True
+                withdraw()
 
-            final_bal = int(balance)-int(amount)
+        if inc == True:
+            incorrectLabel = tk.Label(root,text='PLEASE ENTER A NUMBER THAT IS WITHIN YOUR BALANCE.',font=('Arial', 10))
+            incorrectLabel.pack()
 
-            query = f"UPDATE people SET balance = {final_bal} WHERE name = '{name}'"
-            cursor.execute(query)
-            connection.commit()  
-        else:
-            print('This amount is more than you have in your bank.')
-            withdraw()
-        connection.close()
-        cursor.close()
+        entButton = tk.Entry(root, text="Back", font=('Arial',18))
+        entButton.pack()
+
+        depButton = tk.Button(root, text="Withdraw", font=('Arial',18), command=mWithdraw)
+        depButton.pack()
+        def back():
+            clearFrames()
+            mainButtons(name)
+        backb = tk.Button(root, text="Back", font=('Arial',18), command=back)
+        backb.pack()
+        root.mainloop()
 
     def delete_account():
         clearFrames()
@@ -125,11 +177,12 @@ def mainButtons(name):
     def modify_account():
         connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
         cursor = connection.cursor()
+        clearFrames()
 
-        ask = input('Are you sure you want to change your password?(y/n) ')
-        if ask == 'y' or ask == 'n':
-            if ask == 'y':
-                ask_password = input('What is your current password?')
+        #ask = input('Are you sure you want to change your password?(y/n) ')
+        def change():
+            if True:
+                ask_password = passO.get()
                 query = f"SELECT * FROM people"
                 cursor.execute(query)
                 result = cursor.fetchall()
@@ -138,15 +191,50 @@ def mainButtons(name):
                 for peoples in result:
                     if peoples[1] == ask_password:
                         correct = True
-                if correct == True:
-                    new_pass = input('What do you want to change your password to?')
+                new_pass = passb.get()
+                if correct == True and (new_pass!=ask_password):
                     query = f"UPDATE people SET password = {new_pass} WHERE name = '{name}'"
                     cursor.execute(query)
                     connection.commit()  
+
+                    clearFrames()
+                    mainButtons(name)
                 else:
-                    print('Your passwords do not match.')
-        else:
-            modify_account()
+                    global inc
+                    inc = True
+                    modify_account()
+        #else:
+            #modify_account()
+
+        if inc == True:
+            incorrectLabel = tk.Label(root,text='YOUR CREATED PASSWORD MUST BE DIFFERENT, OR CHECK YOUR OLD PASSWORD.',font=('Arial', 8))
+            incorrectLabel.pack()
+
+        userlabel = tk.Label(root,text='Old Password: ',font=('Arial', 18))
+        userlabel.pack()
+
+        passO = tk.Entry(root, text="Enter username:", font=('Arial',18))
+        passO.pack()
+
+
+        passlabel = tk.Label(root,text='New Password: ',font=('Arial', 18))
+        passlabel.pack()
+
+        passb = tk.Entry(root, text="Enter password:", font=('Arial',18))
+        passb.pack()
+
+
+        confirmb = tk.Button(root, text="Change password", font=('Arial',18), command=change)
+        confirmb.pack()
+
+
+
+        def back():
+            clearFrames()
+            mainButtons(name)
+        backb = tk.Button(root, text="Back", font=('Arial',18), command=back)
+        backb.pack()
+        root.mainloop()
 
         cursor.close()
         connection.close() 
@@ -275,7 +363,7 @@ def begining():
             #------------------------------------------------------
 
             if exists == False:
-                query = f"INSERT INTO people (name,password,balance,type) VALUES ('{login_user}',{login_pass},0,'none')"
+                query = f"INSERT INTO people (name,password,balance,type) VALUES ('{login_user}','{login_pass}',0,'none')"
                 cursor.execute(query)
                 connection.commit()
 
