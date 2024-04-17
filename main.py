@@ -266,7 +266,7 @@ def mainButtons(name):
         userlabel = tk.Label(root,text='Old Password: ',font=('Arial', 18))
         userlabel.pack()
 
-        passO = tk.Entry(root, text="Enter:", font=('Arial',18))
+        passO = tk.Entry(root, text="Enter t:", font=('Arial',18))
         passO.pack()
 
 
