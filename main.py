@@ -1,5 +1,8 @@
 import mysql.connector
 import time
+import unittest
+
+
 
 page = ''
 
@@ -31,6 +34,15 @@ def mainButtons(name):
         #^^ conncect to database, I was going to make a function for each command, but this is easier for me
 
         for people in result:
+
+            '''
+            class testStringsMethods(unittest.TestCase):#unit testing
+                def test_Status(self):
+                    self.assertEqual(people[0],name)#Checks if the username matches
+
+                if __name__ == '__main__':
+                    unittest.main()
+            '''
             if people[0] == name:
                 balancelabel = tk.Label(root, text=f"Balance = {people[2]}", font=('Arial',18))
                 balancelabel.pack()
@@ -59,6 +71,15 @@ def mainButtons(name):
                 cursor.execute(query)
                 result = cursor.fetchall()
 
+                '''
+                class testStringsMethods(unittest.TestCase):#unit testing
+                    def test_Status(self):
+                        self.assertEqual(people[0],name)#Checks if the username matches
+
+                    if __name__ == '__main__':
+                        unittest.main()
+                '''
+
                 for people in result:
                     if people[0] == name:
                         balance = people[2]
@@ -81,6 +102,14 @@ def mainButtons(name):
                 #^bool for displaying incorrect label
                 deposit()
 
+        '''
+            class testStringsMethods(unittest.TestCase):#unit testing
+                def test_Status(self):
+                    self.assertTrue(inc)#Checks if the value is equal to true
+
+                if __name__ == '__main__':
+                    unittest.main()
+            '''
         if inc == True: #checks if incorrect, then prints the message for error
             incorrectLabel = tk.Label(root,text='PLEASE ENTER A NUMBER ONLY.',font=('Arial', 10))
             incorrectLabel.pack()
@@ -112,6 +141,14 @@ def mainButtons(name):
             for people in result:
                 if people[0] == name:
                     balance = people[2]
+                    '''
+                class testStringsMethods(unittest.TestCase):#unit testing
+                    def test_Status(self):
+                        self.assertEqual(people[0],name)#Checks if the username matches
+
+                    if __name__ == '__main__':
+                        unittest.main()
+                '''
             #^gets balance
             if amount.isdigit() and (int(balance)-int(amount))>=0: #checks if the number is less that or equal to your current balance
 
@@ -197,6 +234,14 @@ def mainButtons(name):
                 for peoples in result:
                     if peoples[1] == ask_password:
                         correct = True
+                        '''
+                class testStringsMethods(unittest.TestCase):#unit testing
+                    def test_Status(self):
+                        self.assertEqual(people[1],name)#Checks if the password matches
+
+                    if __name__ == '__main__':
+                        unittest.main()
+                '''
                 # checks if it matches with actual password
                 new_pass = passb.get()
                 #get created pass from entry
@@ -427,7 +472,14 @@ def begining():
     createb.pack()
 
     root.mainloop()
+'''
+class testStringsMethods(unittest.TestCase):#unit testing
+    def test_Status(self):
+        self.assertRaises(begining())#Checks the status of the function
 
+    if __name__ == '__main__':
+        unittest.main()
+'''
 begining() #mainloop
 
 
