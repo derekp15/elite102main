@@ -3,7 +3,7 @@ import time
 
 page = ''
 
-programended = False
+programended = False #to deternime if the program has ended
 
 import tkinter as tk
 root = tk.Tk()
@@ -14,12 +14,12 @@ root.title('Bank')
 
 def mainButtons(name):
 
-    global inc
+    global inc #checks if something is incorrect, used later
     inc = False
 
     def check_balance():
 
-        clearFrames()
+        clearFrames()#clears ui
 
         connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
         cursor = connection.cursor()
@@ -28,13 +28,15 @@ def mainButtons(name):
         cursor.execute(query)
         result = cursor.fetchall()
 
+        #^^ conncect to database, I was going to make a function for each command, but this is easier for me
+
         for people in result:
             if people[0] == name:
                 balancelabel = tk.Label(root, text=f"Balance = {people[2]}", font=('Arial',18))
                 balancelabel.pack()
-                
-        def back():
-            clearFrames()
+        #^^ This finds the balance and makes it onto a label
+        def back(): #The back button that sends back to the main
+            clearFrames() #clears ui
             mainButtons(name)
         backb = tk.Button(root, text="Back", font=('Arial',18), command=back)
         backb.pack()
@@ -45,10 +47,11 @@ def mainButtons(name):
         connection.close()
 
     def deposit():
-        clearFrames()
+        clearFrames()#clears frames
         def mDeposit():
             amount = entButton.get()
-            if amount.isdigit():
+            #gets values from the entry
+            if amount.isdigit(): #checks if it is a number
                 connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
                 cursor = connection.cursor()
 
@@ -59,12 +62,13 @@ def mainButtons(name):
                 for people in result:
                     if people[0] == name:
                         balance = people[2]
-
+                #^gets balance
                 final_bal = int(balance)+int(amount)
-
+                #^Adds together balance and the amountin the entry
                 query = f"UPDATE people SET balance = {final_bal} WHERE name = '{name}'"
                 cursor.execute(query)
                 connection.commit()
+                #^commits it to balance
 
                 clearFrames()
                 mainButtons(name)
@@ -74,15 +78,17 @@ def mainButtons(name):
             else:
                 global inc
                 inc = True
+                #^bool for displaying incorrect label
                 deposit()
 
-        if inc == True:
+        if inc == True: #checks if incorrect, then prints the message for error
             incorrectLabel = tk.Label(root,text='PLEASE ENTER A NUMBER ONLY.',font=('Arial', 10))
             incorrectLabel.pack()
 
         entButton = tk.Entry(root, text="Back", font=('Arial',18))
         entButton.pack()
-
+        #entry button^
+        #At first i was going to ask yes or no if you wanted to deposit, and sent to different pages, but i simplifyed it
         depButton = tk.Button(root, text="Deposit", font=('Arial',18), command=mDeposit)
         depButton.pack()
         def back():
@@ -94,7 +100,7 @@ def mainButtons(name):
     def withdraw():
         clearFrames()
         def mWithdraw():
-            amount = entButton.get()
+            amount = entButton.get()#gets entry button values
 
             connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
             cursor = connection.cursor()
@@ -106,8 +112,8 @@ def mainButtons(name):
             for people in result:
                 if people[0] == name:
                     balance = people[2]
-
-            if amount.isdigit() and (int(balance)-int(amount))>=0:
+            #^gets balance
+            if amount.isdigit() and (int(balance)-int(amount))>=0: #checks if the number is less that or equal to your current balance
 
                 query = f"SELECT * FROM people"
                 cursor.execute(query)
@@ -125,15 +131,15 @@ def mainButtons(name):
                 connection.close()
                 cursor.close()
             else:
-                global inc
+                global inc#incorrect bool
                 inc = True
                 withdraw()
 
-        if inc == True:
+        if inc == True:#displays error label
             incorrectLabel = tk.Label(root,text='PLEASE ENTER A NUMBER THAT IS WITHIN YOUR BALANCE.',font=('Arial', 10))
             incorrectLabel.pack()
 
-        entButton = tk.Entry(root, text="Back", font=('Arial',18))
+        entButton = tk.Entry(root, text="Back", font=('Arial',18))#entry button
         entButton.pack()
 
         depButton = tk.Button(root, text="Withdraw", font=('Arial',18), command=mWithdraw)
@@ -148,14 +154,14 @@ def mainButtons(name):
     def delete_account():
         clearFrames()
 
-        
+        #I was going to ask yes or no, and for the username, but i simplifyed into just the button
 
         def deletef():
             connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
         
             cursor = connection.cursor()
             drop = f"DELETE FROM people WHERE name = '{name}'"
-            cursor.execute(drop)
+            cursor.execute(drop)#deletes the row on sql
             connection.commit()
 
             connection.close()
@@ -179,21 +185,23 @@ def mainButtons(name):
         cursor = connection.cursor()
         clearFrames()
 
-        #ask = input('Are you sure you want to change your password?(y/n) ')
+        #ask = input('Are you sure you want to change your password?(y/n) ') -- this was the original idea
         def change():
             if True:
                 ask_password = passO.get()
                 query = f"SELECT * FROM people"
                 cursor.execute(query)
                 result = cursor.fetchall()
-
+                # gets original password from entry
                 correct = False
                 for peoples in result:
                     if peoples[1] == ask_password:
                         correct = True
+                # checks if it matches with actual password
                 new_pass = passb.get()
-                if correct == True and (new_pass!=ask_password):
-                    query = f"UPDATE people SET password = {new_pass} WHERE name = '{name}'"
+                #get created pass from entry
+                if correct == True and (new_pass!=ask_password): #if they match and the created one isnt the same
+                    query = f"UPDATE people SET password = {new_pass} WHERE name = '{name}'" #change password to new
                     cursor.execute(query)
                     connection.commit()  
 
@@ -209,18 +217,18 @@ def mainButtons(name):
         if inc == True:
             incorrectLabel = tk.Label(root,text='YOUR CREATED PASSWORD MUST BE DIFFERENT, OR CHECK YOUR OLD PASSWORD.',font=('Arial', 8))
             incorrectLabel.pack()
-
+        #Ui creation for modify:
         userlabel = tk.Label(root,text='Old Password: ',font=('Arial', 18))
         userlabel.pack()
 
-        passO = tk.Entry(root, text="Enter username:", font=('Arial',18))
+        passO = tk.Entry(root, text="Enter:", font=('Arial',18))
         passO.pack()
 
 
         passlabel = tk.Label(root,text='New Password: ',font=('Arial', 18))
         passlabel.pack()
 
-        passb = tk.Entry(root, text="Enter password:", font=('Arial',18))
+        passb = tk.Entry(root, text="Enter:", font=('Arial',18))
         passb.pack()
 
 
@@ -245,7 +253,7 @@ def mainButtons(name):
 
     
     clearFrames()
-
+    #main ui for the bank:
     balance_button = tk.Button(root, text="Check Balance", font=('Arial',18), command=check_balance)
     balance_button.pack()
 
@@ -266,26 +274,26 @@ def mainButtons(name):
 
 
 def clearFrames():
-    for widget in root.winfo_children():
+    for widget in root.winfo_children():#loops through widgets in the roots children and destroys them
         widget.destroy()
 
     #bg = tk.PhotoImage(file = "background.png").zoom(2,2)
     #label1 = tk.Label(root, image = bg)
     #label1.place(x = 0, y = 0)
 
-    title = tk.Label(root,text='Bank',font=('Arial', 25))
+    title = tk.Label(root,text='Bank',font=('Arial', 25))#recreates the title "bank"
     title.pack(padx=20,pady=20)
 
 def begining():
 
-    global inc
+    global inc #inc for incorrect bool
     inc = False 
     def login():
         
         def confirm():
             login_user = userb.get()
             login_pass = passb.get()
-
+            #get username and password from the entry
             connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
             cursor = connection.cursor()
 
@@ -298,9 +306,9 @@ def begining():
                 if peoples[0] == login_user and peoples[1] == login_pass:
                     mainButtons(login_user)
                     logged = True
-
+            #checks if it exists, and makes logged = true
             if logged == False:
-                global inc
+                global inc#sets bool to true if not
                 inc = True
                 login()
 
@@ -312,10 +320,11 @@ def begining():
         
         clearFrames()
 
-        if inc == True:
+        if inc == True: #incorrect message for wrong login information
             incorrectLabel = tk.Label(root,text='INCORRECT INFORMATION, PLEASE TRY AGAIN.',font=('Arial', 10))
             incorrectLabel.pack()
 
+        #User ui below
         userlabel = tk.Label(root,text='Username: ',font=('Arial', 18))
         userlabel.pack()
 
@@ -333,7 +342,7 @@ def begining():
         confirmb = tk.Button(root, text="Login", font=('Arial',18), command=confirm)
         confirmb.pack()
 
-        def back():
+        def back():#back button that clears the frames and sets to begining
             clearFrames()
             begining()
         backb = tk.Button(root, text="Back", font=('Arial',18), command=back)
@@ -347,7 +356,7 @@ def begining():
         def confirm():
             login_user = userb.get()
             login_pass = passb.get()
-
+            #gets created username and password
             connection = mysql.connector.connect(host = 'localhost', user='root', database='users', password='12488970')
 
             cursor = connection.cursor()
@@ -356,18 +365,18 @@ def begining():
             cursor.execute(query)
             result = cursor.fetchall()
             exists = False
-            for item in result:
+            for item in result: #check if the username already exists
                 if item[0] == login_user:
                     exists = True
             #print(result)
             if exists == True:
-                global inc
+                global inc #if it exists then set error bool to true and reask
                 inc = True
                 create()
 
             #------------------------------------------------------
 
-            if exists == False:
+            if exists == False: #if the username doesnt exist then creates a new row for the user in sql database
                 query = f"INSERT INTO people (name,password,balance,type) VALUES ('{login_user}','{login_pass}',0,'none')"
                 cursor.execute(query)
                 connection.commit()
@@ -379,10 +388,10 @@ def begining():
         
         clearFrames()
 
-        if inc == True:
+        if inc == True: #incorrect label
             incorrectLabel = tk.Label(root,text='NAME ALREADY TAKEN, PLEASE TRY AGAIN.',font=('Arial', 10))
             incorrectLabel.pack()
-
+        #ui below
         userlabel = tk.Label(root,text='Create username: ',font=('Arial', 18))
         userlabel.pack()
 
@@ -410,6 +419,7 @@ def begining():
 
     clearFrames()
     
+    #ui for the begining page
     loginb = tk.Button(root, text="Login", font=('Arial',18), command=login)
     loginb.pack()
 
@@ -418,7 +428,7 @@ def begining():
 
     root.mainloop()
 
-begining()
+begining() #mainloop
 
 
 
